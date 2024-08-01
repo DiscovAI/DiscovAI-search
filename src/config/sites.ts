@@ -9,6 +9,6 @@ export const SiteConfig = {
 
 export const LinkConfig = {
   site: "https://discovai.io",
-  github: "https://git.new/ruiy",
+  github: "https://github.com/DiscovAI/DiscovAI-search",
   twitter: "https://x.com/ruiyanghim",
 };
