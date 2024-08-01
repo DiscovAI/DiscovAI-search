@@ -2,7 +2,7 @@
 
 An AI-powered search engine for AI tools, or your own data.
 
-https://qdrctcpzdjkxzhkrespm.supabase.co/storage/v1/object/public/f/video/discovai-demo.mp4
+https://github.com/user-attachments/assets/2cdc92d0-d0c9-4098-8166-260e973783f0
 
 Please feel free to contact me on [Twitter](https://x.com/ruiyanghim) or [create an issue](https://github.com/DiscovAI/DiscovAI-search/issues/new) if you have any questions.
 
