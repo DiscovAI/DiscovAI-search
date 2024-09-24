@@ -18,7 +18,7 @@ export default async function HeroLanding() {
           target="_blank"
         >
           <span className="mr-3">🎉</span>
-          <span className="hidden md:flex">Introducing&nbsp;</span> DiscovAI on{" "}
+          <span className="hidden md:flex">Introducing&nbsp;</span> DoktorNaDohled on{" "}
           <Icons.twitter className="ml-2 size-3.5" />
         </Link>
 
@@ -28,10 +28,10 @@ export default async function HeroLanding() {
           className="max-w-2xl text-balance leading-normal text-muted-foreground sm:text-base sm:leading-8 lg:text-xl"
           style={{ animationDelay: "0.35s", animationFillMode: "forwards" }}
         >
-          Stay ahead in AI with DiscovAI, Your Go-To Source for the Latest
+          Stay ahead in healthcare with DoktorNaDohled, Your Go-To Source for the Latest
           <span className="text-tint">
             {" "}
-            AI Products | News | Companies | Models
+            Healthcare Services | Providers | Information
           </span>
         </p>
         <SubscribeForm />

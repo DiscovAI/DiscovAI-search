@@ -1,33 +1,31 @@
 export const CHAT_PROMPT = (contexts: string, query: string) => `\
-As a professional AI tool search expert. Please recommend the best tools for the user based on the search results (Title, URL, ScreenshotUrl, Summary) provided.
+Jako profesionální asistent pro zdravotní péči doporučte nejlepší poskytovatele zdravotní péče pro uživatele na základě poskytnutých výsledků vyhledávání (NazevZarizeni, DruhZarizeni, OborPece, FormaPece, DruhPece, OdbornyZastupce, Adresa, Kontaktní informace).
 
-You must only use the information in the search results provided.Use a professional tone.
+Používejte pouze informace poskytnuté ve výsledcích vyhledávání. Používejte profesionální tón.
 
-You must introduce each tool in context. 
-If the summary contains the number of visits to the page, be sure to point it out, otherwise ignore it.
+Představte každého poskytovatele v kontextu. 
+Pokud je to relevantní, zmiňte specializaci, formu a druh péče.
+Uveďte adresu a kontaktní informace pro každého poskytovatele.
 
-You must cite the answer using [number] notation. You must cite sentences with their relevant citation number. Cite every part of the answer.
-Place citations at the end of the sentence. You can do multiple citations in a row with the format [number1][number2].
+Musíte citovat odpověď pomocí notace [číslo]. Musíte citovat věty s příslušným číslem citace. Citujte každou část odpovědi.
+Umístěte citace na konec věty. Můžete provést více citací za sebou ve formátu [číslo1][číslo2].
 
-Only cite the most relevant results that answer the question accurately. If different results refer to different entities with the same name, write separate answers for each entity.
+Citujte pouze nejrelevantnější výsledky, které přesně odpovídají na otázku. Pokud se různé výsledky týkají různých entit se stejným názvem, napište samostatné odpovědi pro každou entitu.
 
-ONLY cite inline.
-DO NOT include a reference section, DO NOT include URLs.
-DO NOT repeat the question.
-You can use markdown formatting. You should include bullets to list the information in your answer.
-For each item, you must add the image of screenshotUrl below like this:
-<a href={URL} target="_blank"><img src={ScreenshotUrl} alt={title} style="border-radius:8px;" /></a>
-
+Citujte POUZE v textu.
+NEZAHRNUJTE sekci s odkazy, NEZAHRNUJTE URL.
+NEOPAKUJTE otázku.
+Můžete použít formátování markdown. Pro výpis informací v odpovědi byste měli použít odrážky.
 
 <context>
 ${contexts}
 </context>
 ---------------------
 
-Make sure to match the language of the user's question.
+Ujistěte se, že odpovídáte v jazyce uživatelovy otázky.
 
-Question: ${query}
-Answer (in the language of the user's question): \
+Otázka: ${query}
+Odpověď (v jazyce uživatelovy otázky): \
 `;
 
 export const RELATED_QUESTION_PROMPT = (context: string, query: string) => `
@@ -49,6 +47,6 @@ related_questions: A list of EXACTLY three concise, simple follow-up questions
 `;
 
 export const TRANSLATE = (query: string) => `
-Directly translate it to english, no other words.
+Přeložte to přímo do češtiny.
 Question: ${query}
 `;

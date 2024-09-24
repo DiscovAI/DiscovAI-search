@@ -1,7 +1,7 @@
 // app/api/stream/route.ts
 
 import { embeddingVectorCacheKey, llmResultCacheKey, redis } from "@/db/redis";
-import { supabase } from "@/db/supabase";
+import { createClient } from '@supabase/supabase-js'
 import { generateQueyEmbedding } from "@/lib/chat/embedding";
 import { genLLMTextChunk, translate } from "@/lib/chat/llm";
 import { addRefToUrl, genStream, sleep } from "@/lib/utils";
@@ -9,7 +9,23 @@ import { StreamEvent } from "@/schema/chat";
 import { PostgrestError } from "@supabase/supabase-js";
 import { NextRequest } from "next/server";
 
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
+const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
+const supabase = createClient(supabaseUrl, supabaseKey)
+
+// Přidejte tuto funkci pro testování připojení
+async function testSupabaseConnection() {
+  try {
+    const { data, error } = await supabase.from('healthcareprovidors').select('*').limit(1)
+    if (error) throw error
+    console.log('Úspěšné připojení k Supabase:', data)
+  } catch (error) {
+    console.error('Chyba při připojení k Supabase:', error)
+  }
+}
+
 export async function POST(req: NextRequest) {
+  await testSupabaseConnection()
   const body = await req.json();
   const { query } = body;
 
@@ -36,13 +52,34 @@ export async function POST(req: NextRequest) {
             await translate({ query })
           );
 
-          let result = await supabase.rpc("match_embeddings", {
-            query_embedding: embedding, // Pass the embedding you want to compare
-            match_threshold: 0.78, // Choose an appropriate threshold for your data
-            match_count: 15, // Choose the number of matches
-          });
-          documents = result.data;
-          queryEmbeddingError = result.error;
+          let result;
+          try {
+            console.log("Volání match_embeddings s parametry:", {
+              query_embedding: embedding,
+              match_threshold: 0.78,
+              match_count: 15,
+            });
+            result = await supabase.rpc("match_embeddings", {
+              query_embedding: embedding,
+              match_threshold: 0.78,
+              match_count: 15,
+            });
+            console.log("Výsledek volání match_embeddings:", JSON.stringify(result, null, 2));
+            if (result.error) throw result.error;
+            documents = result.data;
+          } catch (error) {
+            console.error("Chyba při volání match_embeddings:", JSON.stringify(error, null, 2));
+            controller.enqueue(
+              genStream({
+                event: StreamEvent.ERROR,
+                data: {
+                  event_type: StreamEvent.ERROR,
+                  detail: "Chyba při vyhledávání relevantních dokumentů. Prosím, zkuste to znovu později.",
+                },
+              })
+            );
+            return; // Ukončete funkci zde, aby se nepokračovalo s prázdnými dokumenty
+          }
         }
 
         if (queryEmbeddingError) {
@@ -56,7 +93,7 @@ export async function POST(req: NextRequest) {
               },
             })
           );
-          controller.close();
+          return; // Místo controller.close() použijte return
         }
         redis.setex(
           embeddingVectorCacheKey(query),
@@ -64,9 +101,10 @@ export async function POST(req: NextRequest) {
           JSON.stringify(documents)
         );
         // filter for unique docs
-        const uniqueDocuments = [
-          ...new Set(documents.map((tool) => tool.metadata.url)),
-        ].map((url) => documents.find((tool) => tool.metadata.url === url));
+        const uniqueDocuments = documents && documents.length > 0
+          ? [...new Set(documents.map((tool) => tool.metadata.url))]
+            .map((url) => documents.find((tool) => tool.metadata.url === url))
+          : [];
 
         for (let doc of uniqueDocuments) {
           doc.metadata.url = addRefToUrl(doc.metadata.url);
@@ -75,15 +113,25 @@ export async function POST(req: NextRequest) {
         documents = uniqueDocuments.slice(0, 5);
 
         const searchResult = documents.map((d) => {
-          const safeContent = d.chunk_text.includes("DESCRIPTION")
-            ? d.chunk_text?.split("---")?.[0]?.split("DESCRIPTION:")?.[1]
-            : d.chunk_text;
           return {
-            title: d.metadata.title,
-            url: d.metadata.url,
-            content: safeContent,
-            description: safeContent,
-            screenshot_url: d.screenshot_url,
+            title: d.nazevzarizeni,
+            url: d.poskytovatelweb,
+            description: `${d.druhzarizeni} - ${d.oborpece}`,
+            address: `${d.ulice} ${d.cislodomovniorientacni}, ${d.obec}, ${d.psc}`,
+            contact: {
+              phone: d.poskytovateltelefon,
+              email: d.poskytovateljmail,
+            },
+            specialization: {
+              formapece: d.formapece,
+              druhpece: d.druhpece,
+              odbornyzastupce: d.odbornyzastupce,
+            },
+            region: {
+              kraj: d.kraj,
+              okres: d.okres,
+            },
+            ico: d.ico,
           };
         });
 
@@ -92,12 +140,14 @@ export async function POST(req: NextRequest) {
             event: StreamEvent.SEARCH_RESULTS,
             data: {
               event_type: StreamEvent.SEARCH_RESULTS,
-              results: searchResult,
+              results: searchResult.map((result) => ({
+                ...result,
+                content: result.description, // Přidání chybějící vlastnosti content
+              })),
               images: uniqueDocuments.map((r) => r.screenshot_url),
             },
           })
         );
-
         // stream llm text chunk
         const llmKey = llmResultCacheKey(query);
         const llmCache: string | null = await redis.get(llmKey);
@@ -138,7 +188,6 @@ export async function POST(req: NextRequest) {
           }
         }
         redis.setex(llmKey, 60 * 60 * 12, gathered);
-
         // more results or related query
         const moreTools = uniqueDocuments.slice(5);
         controller.enqueue(

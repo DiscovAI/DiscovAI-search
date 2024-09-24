@@ -1,14 +1,13 @@
 export const SiteConfig = {
-  name: "DiscovAI",
-  title: "DiscovAI",
-  metaTitle: "DiscovAI - Discover top ai tools best match your need",
-  desc: "Search over 15,349 top ai tools in our database by chatgpt, Discover the latest AI Products with detailed traffic data, best match your need",
-  panel: "Everything about AI",
-  subPanel: "Discover AI from over 15,349 tools for you need",
+  name: "DoktorNaDohled",
+  title: "DoktorNaDohled",
+  metaTitle: "DoktorNaDohled - Najděte vhodné zdravotní služby",
+  desc: "AI konverzační platforma zaměřená na poskytování relevantních informací a odpovědí na otázky uživatelů v oblasti zdravotnictví.",
+  panel: "Vše o zdravotnictví",
+  subPanel: "Najděte vhodné zdravotní služby a poskytovatele zdravotní péče",
 };
 
 export const LinkConfig = {
-  site: "https://discovai.io",
-  github: "https://github.com/DiscovAI/DiscovAI-search",
-  twitter: "https://x.com/ruiyanghim",
+  site: "https://www.doktornadohled-digimedic.cz",
+  github: "https://github.com/DigiMedic/Doktor-Na-Dohled",
 };

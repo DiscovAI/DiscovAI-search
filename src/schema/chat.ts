@@ -88,6 +88,21 @@ export type SearchResult = {
   url: string;
   content: string;
   description: string;
+  address: string;
+  contact: {
+    phone: string;
+    email: string;
+  };
+  specialization: {
+    formapece: string;
+    druhpece: string;
+    odbornyzastupce: string;
+  };
+  region: {
+    kraj: string;
+    okres: string;
+  };
+  ico: number;
 };
 
 export type SearchResultStream = {

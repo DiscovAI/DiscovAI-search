@@ -39,88 +39,33 @@ export const Logo = ({ url }: { url: string }) => {
 };
 
 export function SearchResults({ results }: { results: SearchResult[] }) {
-  const [showAll, setShowAll] = useState(false);
-
-  const displayedResults = showAll ? results : results.slice(0, 3);
-  const additionalCount = results.length > 3 ? results.length - 3 : 0;
-  const additionalResults = results.slice(3, 3 + additionalCount);
   return (
-    <div className="flex flex-wrap w-full ">
-      {displayedResults.map(({ title, url, content, description }, index) => {
-        const formattedUrl = new URL(url).hostname.split(".").slice(-2, -1)[0];
-
-        return (
-          <HoverCard key={`source-${index}`}>
-            <HoverCardTrigger asChild>
-              <div className="w-1/2 md:w-1/4 p-1">
-                <a className="" href={url} target="_blank">
-                  <Card className="flex-1 rounded-md flex-col shadow-none border-none h-[70px]">
-                    <CardContent className="p-2 flex flex-col justify-between h-full">
-                      <p className="text-xs line-clamp-2 font-medium text-foreground/80">
-                        {title} | {description}
-                      </p>
-                      <div className="flex space-x-1">
-                        <div className="flex items-center space-x-2">
-                          <div className="rounded-full overflow-hidden relative">
-                            <Logo url={url} />
-                          </div>
-                          <div className="text-xs text-muted-foreground truncate font-medium">
-                            {formattedUrl}
-                          </div>
-                        </div>
-                        <div className="text-xs text-muted-foreground font-medium">
-                          ·
-                        </div>
-                        <div className="text-xs text-muted-foreground truncate font-medium">
-                          {index + 1}
-                        </div>
-                      </div>
-                    </CardContent>
-                  </Card>
-                </a>
-              </div>
-            </HoverCardTrigger>
-            <HoverCardContent className="w-80 py-2">
-              <div className="flex justify-between space-x-4">
-                <div className="space-y-1">
-                  <div className="flex items-center space-x-2">
-                    <div className="rounded-full overflow-hidden relative">
-                      <Logo url={url} />
-                    </div>
-                    <div className="text-xs text-muted-foreground truncate font-medium">
-                      {formattedUrl}
-                    </div>
-                  </div>
-                  <p className="text-sm font-medium">{title}</p>
-                  <span className="text-sm line-clamp-3 font-light text-foreground/90">
-                    {content}
-                  </span>
-                </div>
-              </div>
-            </HoverCardContent>
-          </HoverCard>
-        );
-      })}
-      {!showAll && additionalCount > 0 && (
-        <div
-          className="cursor-pointer
-        w-1/2 md:w-1/4  p-1"
-          onClick={() => setShowAll(true)}
-        >
-          <Card className="flex-1 rounded-md flex-col shadow-none border-none h-[70px]">
-            <CardContent className="p-2 flex flex-col justify-between h-full">
-              <div className="flex items-center space-x-2">
-                {additionalResults.map(({ url }, index) => {
-                  return <Logo url={url} key={`logo-${index}`} />;
-                })}
-              </div>
-              <div className="text-xs text-muted-foreground truncate font-medium">
-                View {additionalCount} more
-              </div>
-            </CardContent>
-          </Card>
+    <div className="space-y-4">
+      {results.map((result, index) => (
+        <div key={index} className="border p-4 rounded-lg">
+          <h3 className="text-lg font-semibold">{result.title}</h3>
+          <p className="text-sm text-gray-600">{result.description}</p>
+          <p className="text-sm">{result.address}</p>
+          <p className="text-sm">
+            Telefon: {result.contact.phone}, Email: {result.contact.email}
+          </p>
+          <p className="text-sm">
+            Forma péče: {result.specialization.formapece}, Druh péče: {result.specialization.druhpece}
+          </p>
+          <p className="text-sm">
+            Odborný zástupce: {result.specialization.odbornyzastupce}
+          </p>
+          <p className="text-sm">
+            Kraj: {result.region.kraj}, Okres: {result.region.okres}
+          </p>
+          <p className="text-sm">IČO: {result.ico}</p>
+          {result.url && (
+            <a href={result.url} target="_blank" rel="noopener noreferrer" className="text-blue-500 hover:underline">
+              Webové stránky
+            </a>
+          )}
         </div>
-      )}
+      ))}
     </div>
   );
 }
